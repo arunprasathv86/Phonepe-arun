@@ -12,14 +12,14 @@ myrepo_path=os.path.join(clone_path,os.path.basename(repo_url).removesuffix('.gi
 #print(repo_path)
 Repo.clone_from(repo_url,myrepo_path)
 directory = os.path.join(myrepo_path,'data')
-print(directory)
+#print(directory)
 #########################################################
 
 def rename(directory):
     for root, dirs, files in os.walk(directory):
         if 'state' in dirs:
             state_dir = os.path.join(root, 'state')
-            print(root)
+        #print(root)
             for state_folder in os.listdir(state_dir):
                 # rename the state folder
                 old_path = os.path.join(state_dir, state_folder)
@@ -39,7 +39,7 @@ rename(directory)
 #print(extract_paths(directory))
 ###############################################################
 state_directories = extract_paths(directory)
-print(state_directories)
+#print(state_directories)
 ##Agg transaction data statewise
 state_path = state_directories[0]
 state_list = os.listdir(state_path)
@@ -122,7 +122,7 @@ agg_user_df = pd.DataFrame(agg_user_dict)
 state_path = state_directories[2]
 state_list = os.listdir(state_path)
 map_trans_dict = {
-                    'State': [], 'Year': [], 'Quarter': [], 'District': [],
+                    'State': [], 'Year': [], 'Quarter': [],
                     'Transaction_count': [], 'Transaction_amount': []
                     }
 
@@ -150,7 +150,7 @@ for state in state_list:
                     map_trans_dict['State'].append(state)
                     map_trans_dict['Year'].append(year)
                     map_trans_dict['Quarter'].append(int(quarter.removesuffix('.json'))) 
-                    map_trans_dict['District'].append(district.removesuffix(' district').title().replace(' And', ' and').replace('andaman', 'Andaman'))
+                    #map_trans_dict['District'].append(district.removesuffix(' district').title().replace(' And', ' and').replace('andaman', 'Andaman'))
                     map_trans_dict['Transaction_count'].append(count)
                     map_trans_dict['Transaction_amount'].append(amount)
             except:
@@ -161,7 +161,7 @@ map_trans_df = pd.DataFrame(map_trans_dict)
 state_path = state_directories[3]
 state_list = os.listdir(state_path)
 map_user_dict = {
-                 'State': [], 'Year': [], 'Quarter': [], 'District': [],
+                 'State': [], 'Year': [], 'Quarter': [],
                  'Registered_users': [], 'App_opens': []
                  }
 
@@ -188,7 +188,7 @@ for state in state_list:
                     map_user_dict['State'].append(state)
                     map_user_dict['Year'].append(year)
                     map_user_dict['Quarter'].append(int(quarter.removesuffix('.json')))
-                    map_user_dict['District'].append(district.removesuffix(' district').title().replace(' And', ' and').replace('andaman', 'Andaman'))
+                    #map_user_dict['District'].append(district.removesuffix(' district').title().replace(' And', ' and').replace('andaman', 'Andaman'))
                     map_user_dict['Registered_users'].append(reg_user_count)
                     map_user_dict['App_opens'].append(app_open_count)
             except:
@@ -199,7 +199,7 @@ map_user_df = pd.DataFrame(map_user_dict)
 state_path = state_directories[4]
 state_list = os.listdir(state_path)
 top_trans_dist_dict = {
-                        'State': [], 'Year': [], 'Quarter': [], 'District': [],
+                        'State': [], 'Year': [], 'Quarter': [],
                         'Transaction_count': [], 'Transaction_amount': []
                         }
 
@@ -227,7 +227,7 @@ for state in state_list:
                     top_trans_dist_dict['State'].append(state)
                     top_trans_dist_dict['Year'].append(year)
                     top_trans_dist_dict['Quarter'].append(int(quarter.removesuffix('.json')))                    
-                    top_trans_dist_dict['District'].append(name.title().replace(' And', ' and').replace('andaman', 'Andaman'))
+                    #top_trans_dist_dict['District'].append(name.title().replace(' And', ' and').replace('andaman', 'Andaman'))
                     top_trans_dist_dict['Transaction_count'].append(count)
                     top_trans_dist_dict['Transaction_amount'].append(amount)
             except:
@@ -278,7 +278,7 @@ state_path = state_directories[5]
 state_list = os.listdir(state_path)
 top_user_dist_dict = {
                         'State': [], 'Year': [], 'Quarter': [],
-                        'District': [], 'Registered_users': []
+                         'Registered_users': []
                         }
 
 for state in state_list:
@@ -304,7 +304,7 @@ for state in state_list:
                     top_user_dist_dict['State'].append(state)
                     top_user_dist_dict['Year'].append(year)
                     top_user_dist_dict['Quarter'].append(int(quarter.removesuffix('.json')))
-                    top_user_dist_dict['District'].append(name.title().replace(' And', ' and').replace('andaman', 'Andaman'))
+                    #top_user_dist_dict['District'].append(name.title().replace(' And', ' and').replace('andaman', 'Andaman'))
                     top_user_dist_dict['Registered_users'].append(count)
             except:
                 pass
@@ -348,40 +348,58 @@ for state in state_list:
 
 top_user_pin_df = pd.DataFrame(top_user_pin_dict)
 ###########################################################################
-lat_long_df = pd.read_csv(r"Miscellaneous\dist_lat_long.csv")
 
-for df_name in df_list:
-    df = globals()[df_name]
-    if 'District' in df.columns:
-        df = pd.merge(df, lat_long_df, on=['State', 'District'], how='left')
-        globals()[df_name] = df
+df_list = [df for df in globals() if isinstance(globals()[df], pd.core.frame.DataFrame) and df.endswith('_df')]
+
+
+#lat_long_df = pd.read_csv(r"Miscellaneous/dist_lat_long.csv")
+
+
+##for df_name in df_list:
+##    df = globals()[df_name]
+##    if 'District' in df.columns:
+##        df = pd.merge(df, lat_long_df, on=['State'], how='left')
+##        globals()[df_name] = df
+##################################################################################
+##        def add_suffix_to_districts(df):
+##            if 'District' in df.columns and 'State' in df.columns:
+##                delhi_df = df[df['State'] == 'Delhi']
+##        
+##                districts_to_suffix = [d for d in delhi_df['District'].unique() if d != 'Shahdara']
+##        
+##                df.loc[(df['State'] == 'Delhi') & (df['District'].isin(districts_to_suffix)), 'District'] = df.loc[(df['State'] == 'Delhi') & (df['District'].isin(districts_to_suffix)), 'District'].apply(lambda x: x + ' Delhi' if 'Delhi' not in x else x)
+##                return df
+##
+##for df_name in df_list:
+##    df = globals()[df_name]
+##    add_suffix_to_districts(df)
 
 ###############################################################################
-        def add_region_column(df):
+def add_region_column(df):
     state_groups = {
-        'Northern Region': ['Jammu and Kashmir', 'Himachal Pradesh', 'Punjab', 'Chandigarh', 'Uttarakhand', 'Ladakh', 'Delhi', 'Haryana'],
-        'Central Region': ['Uttar Pradesh', 'Madhya Pradesh', 'Chhattisgarh'],
-        'Western Region': ['Rajasthan', 'Gujarat', 'Dadra and Nagar Haveli and Daman and Diu', 'Maharashtra'],
-        'Eastern Region': ['Bihar', 'Jharkhand', 'Odisha', 'West Bengal', 'Sikkim'],
-        'Southern Region': ['Andhra Pradesh', 'Telangana', 'Karnataka', 'Kerala', 'Tamil Nadu', 'Puducherry', 'Goa', 'Lakshadweep', 'Andaman and Nicobar Islands'],
-        'North-Eastern Region': ['Assam', 'Meghalaya', 'Manipur', 'Nagaland', 'Tripura', 'Arunachal Pradesh', 'Mizoram']
-    }
-    
-    df['Region'] = df['State'].map({state: region for region, states in state_groups.items() for state in states})
+    'Northern Region': ['Jammu_and_Kashmir', 'Himachal_Pradesh', 'Punjab', 'Chandigarh', 'Uttarakhand', 'Ladakh', 'Delhi', 'Haryana'],
+    'Central Region': ['Uttar_Pradesh', 'Madhya_Pradesh', 'Chhattisgarh'],
+    'Western Region': ['Rajasthan', 'Gujarat', 'Dadra_and_Nagar_Haveli_and_Daman_and_Diu', 'Maharashtra'],
+    'Eastern Region': ['Bihar', 'Jharkhand', 'Odisha', 'West_Bengal', 'Sikkim'],
+    'Southern Region': ['Andhra_Pradesh', 'Telangana', 'Karnataka', 'Kerala', 'Tamil_Nadu', 'Puducherry', 'Goa', 'Lakshadweep', 'Andaman_and_Nicobar_Islands'],
+    'North-Eastern Region': ['Assam', 'Meghalaya', 'Manipur', 'Nagaland', 'Tripura', 'Arunachal_Pradesh', 'Mizoram']
+    }   
+    df['Region'] = df['State'].map({state: region for region,states in state_groups.items() for state in states})
+    df.fillna(0)
     return df
 #######################################################################
-df_list = [df for df in globals() if isinstance(globals()[df], pd.core.frame.DataFrame) and df.endswith('_df')]
+
 for df_name in df_list:
     df = globals()[df_name]
     add_region_column(df)
 
-print('DATAFRAME INFO:\n')
+#print('DATAFRAME INFO:\n')
 
 for df_name in df_list:
     df = globals()[df_name]
     print(df_name + ':\n')
-    df.info()
-    print("\n", 45 * "_", "\n")
+    #df.info()
+    #print("\n", 45 * "_", "\n")
 def save_dfs_as_csv(df_list):
     subfolder = 'Miscellaneous'
     if not os.path.exists(subfolder):
@@ -396,11 +414,36 @@ def save_dfs_as_csv(df_list):
 
 save_dfs_as_csv(df_list)
 
-##########################################################
+#################################################################
+for df_name in df_list:
+    df = globals()[df_name]
+    print(f"{df_name}:")
+    print(f"Null count: \n{df.isnull().sum()}")
+    print(f"Duplicated rows count: \n{df.duplicated().sum()}")
+    print(df.shape)
+    print("\n", 25 * "_", "\n")
+
+top_trans_pin_df.dropna(axis = 'index', inplace = True)
+top_trans_pin_df.isnull().sum()
+for df_name in df_list:
+    df = globals()[df_name]
+    df['Year'] = df['Year'].astype('int')
+
+#print('OUTLIER COUNT ACROSS DATAFRAMES:\n')
+
+##for df_name in df_list:
+##    df = globals()[df_name]
+##    outliers = count_outliers(df)
+##    if len(outliers) == 0:
+##        pass
+##    else:
+##        print(df_name, ":\n\n", outliers, "\n")
+##        print("\n", 55 * "_", "\n")
+        
+############################################################
 conn = mysql.connector.connect(
-  host = "localhost",
-  user = "root",
-  password = "Rooting@7781"
+host = "localhost",
+user = "root"
 )
 ##############################################################
 cursor = conn.cursor()
@@ -433,44 +476,41 @@ cursor.execute('''CREATE TABLE agg_user (
                     PRIMARY KEY (State(255), Year, Quarter, Brand(255), Region(255))
                  )''')
 
-cursor.execute('''CREATE TABLE map_trans (
-                    State VARCHAR(255),
-                    Year YEAR,
-                    Quarter INTEGER,
-                    District VARCHAR(255),
-                    Transaction_count INTEGER,
-                    Transaction_amount FLOAT,
-                    Latitude FLOAT,
-                    Longitude FLOAT,
-                    Region VARCHAR(255),
-                    PRIMARY KEY (State(255), Year, Quarter, District(255), Region(255))
-                 )''')
+#cursor.execute('''CREATE TABLE map_trans (
+#                    State VARCHAR(255),
+#                    Year YEAR,
+#                    Quarter INTEGER,
+#                    Transaction_count INTEGER,
+#                    Transaction_amount FLOAT,
+#                    Latitude FLOAT,
+#                    Longitude FLOAT,
+#                    Region VARCHAR(255),
+#                    PRIMARY KEY (State(255), Year, Quarter, Region(255))
+#                 )''')
 
-cursor.execute('''CREATE TABLE map_user (
-                    State VARCHAR(255),
-                    Year YEAR,
-                    Quarter INTEGER,
-                    District VARCHAR(255),
-                    Registered_users INTEGER,
-                    App_opens INTEGER,
-                    Latitude FLOAT,
-                    Longitude FLOAT,
-                    Region VARCHAR(255),
-                    PRIMARY KEY (State(255), Year, Quarter, District(255), Region(255))
-                 )''')
+##cursor.execute('''CREATE TABLE map_user (
+##                    State VARCHAR(255),
+##                    Year YEAR,
+##                    Quarter INTEGER,
+##                    Registered_users INTEGER,
+##                    App_opens INTEGER,
+##                    Latitude FLOAT,
+##                    Longitude FLOAT,
+##                    Region VARCHAR(255),
+##                    PRIMARY KEY (State(255), Year, Quarter, Region(255))
+##                 )''')
 
-cursor.execute('''CREATE TABLE top_trans_dist (
-                    State VARCHAR(255),
-                    Year YEAR,
-                    Quarter INTEGER,
-                    District VARCHAR(255),
-                    Transaction_count INTEGER,
-                    Transaction_amount FLOAT,
-                    Latitude FLOAT,
-                    Longitude FLOAT,
-                    Region VARCHAR(255),
-                    PRIMARY KEY (State(255), Year, Quarter, District(255), Region(255))
-                 )''')
+##cursor.execute('''CREATE TABLE top_trans_dist (
+##                    State VARCHAR(255),
+##                    Year YEAR,
+##                    Quarter INTEGER,
+##                    Transaction_count INTEGER,
+##                    Transaction_amount FLOAT,
+##                    Latitude FLOAT,
+##                    Longitude FLOAT,
+##                    Region VARCHAR(255),
+##                    PRIMARY KEY (State(255), Year, Quarter, Region(255))
+##                 )''')
 
 cursor.execute('''CREATE TABLE top_trans_pin (
                     State VARCHAR(255),
@@ -487,12 +527,11 @@ cursor.execute('''CREATE TABLE top_user_dist (
                     State VARCHAR(255),
                     Year YEAR,
                     Quarter INTEGER,
-                    District VARCHAR(255),
                     Registered_users INTEGER,
                     Latitude FLOAT,
                     Longitude FLOAT,
                     Region VARCHAR(255),
-                    PRIMARY KEY (State(255), Year, Quarter, District(255), Region(255))
+                    PRIMARY KEY (State(255), Year, Quarter, Region(255))
                  )''')
 
 cursor.execute('''CREATE TABLE top_user_pin (
@@ -505,51 +544,52 @@ cursor.execute('''CREATE TABLE top_user_pin (
                     PRIMARY KEY (State(255), Year, Quarter, Pincode(255), Region(255))
                  )''')
 
+##
+##
+dfs = {
+    'agg_trans': agg_trans_df,
+    'agg_user': agg_user_df,
+    #'map_trans': map_trans_df,
+#    'map_user': map_user_df,
+#    'top_trans_dist': top_trans_dist_df,
+    'top_trans_pin': top_trans_pin_df,
+#    'top_user_dist': top_user_dist_df,
+    'top_user_pin': top_user_pin_df
+}
+# Mapping table name to associated columns for each table
 
-
+table_columns = {
+    'agg_trans': list(agg_trans_df.columns),
+    'agg_user': list(agg_user_df.columns),
+#    'map_trans': list(map_trans_df.columns),
+#    'map_user': list(map_user_df.columns),
+#    'top_trans_dist': list(top_trans_dist_df.columns),
+    'top_trans_pin': list(top_trans_pin_df.columns),
+#    'top_user_dist': list(top_user_dist_df.columns),
+    'top_user_pin': list(top_user_pin_df.columns)
+}
 
 
 def push_data_into_mysql(conn, cursor, dfs, table_columns):
     for table_name in dfs.keys():
         df = dfs[table_name]
         columns = table_columns[table_name]
+        
         placeholders = ', '.join(['%s'] * len(columns))
         query = f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})"
         for _, row in df.iterrows():
             data = tuple(row[column] for column in columns)
+#            print(data)
             cursor.execute(query, data)
         conn.commit()
     print("Data successfully pushed into MySQL tables")
 
-###############################################################
-
-dfs = {
-    'agg_trans': agg_trans_df,
-    'agg_user': agg_user_df,
-    'map_trans': map_trans_df,
-    'map_user': map_user_df,
-    'top_trans_dist': top_trans_dist_df,
-    'top_trans_pin': top_trans_pin_df,
-    'top_user_dist': top_user_dist_df,
-    'top_user_pin': top_user_pin_df
-}
-
-# Mapping table name to associated columns for each table
-
-table_columns = {
-    'agg_trans': list(agg_trans_df.columns),
-    'agg_user': list(agg_user_df.columns),
-    'map_trans': list(map_trans_df.columns),
-    'map_user': list(map_user_df.columns),
-    'top_trans_dist': list(top_trans_dist_df.columns),
-    'top_trans_pin': list(top_trans_pin_df.columns),
-    'top_user_dist': list(top_user_dist_df.columns),
-    'top_user_pin': list(top_user_pin_df.columns)
-}
-
+#################################################################
+##
+##
+##
 push_data_into_mysql(conn, cursor, dfs, table_columns)
-
-#####################################################################
-
-
-
+##
+#######################################################################
+##
+##
